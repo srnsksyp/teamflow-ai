@@ -5,6 +5,8 @@ A modern, AI-powered team collaboration platform built with Next.js, React, and 
 ## 🚀 Features
 
 - **User Authentication** - Secure authentication powered by Kinde
+- **Workspace Management** - Create and manage multiple workspaces with validated schemas
+- **Dashboard Layout** - Dedicated dashboard for workspace organization and team collaboration
 - **Responsive UI** - Beautiful, modern interface with Tailwind CSS
 - **Dark Mode Support** - Built-in theme switching with next-themes
 - **Smooth Animations** - Enhanced UX with Motion animations
@@ -29,18 +31,26 @@ A modern, AI-powered team collaboration platform built with Next.js, React, and 
 
 ```
 teamflow-ai/
-├── app/                          # Next.js app directory
-│   ├── (marketing)/              # Marketing pages
-│   │   ├── page.tsx             # Home page
+├── app/                                    # Next.js app directory
+│   ├── (marketing)/                        # Marketing pages
+│   │   ├── page.tsx                       # Home page
 │   │   └── _components/
-│   │       ├── header.tsx       # Header navigation
-│   │       └── hero-section.tsx # Hero section
-│   ├── api/
-│   │   └── auth/                # Authentication routes
-│   ├── globals.css              # Global styles
-│   └── layout.tsx               # Root layout
-├── components/                   # Reusable React components
-│   └── ui/                       # UI component library
+│   │       ├── header.tsx                # Header navigation
+│   │       └── hero-section.tsx          # Hero section
+│   ├── (dashboard)/                       # Dashboard layout group
+│   │   ├── layout.tsx                    # Dashboard layout
+│   │   └── workspace/                    # Workspace management
+│   │       ├── page.tsx                  # Workspace page
+│   │       ├── layout.tsx                # Workspace layout
+│   │       └── _components/              # Workspace components
+│   ├── api/                               # API routes
+│   │   └── auth/                         # Authentication routes
+│   ├── schemas/                           # Zod validation schemas
+│   │   └── workspace.ts                  # Workspace schema
+│   ├── globals.css                        # Global styles
+│   └── layout.tsx                         # Root layout
+├── components/                             # Reusable React components
+│   └── ui/                                # UI component library
 │       ├── button.tsx
 │       ├── card.tsx
 │       ├── dialog.tsx
@@ -48,17 +58,22 @@ teamflow-ai/
 │       ├── form.tsx
 │       ├── avatar.tsx
 │       ├── dropdown-menu.tsx
+│       ├── collapsible.tsx
+│       ├── popover.tsx
+│       ├── skeleton.tsx
+│       ├── text-effect.tsx
+│       ├── theme-toggle.tsx
 │       └── ...more UI components
-├── lib/                          # Utility functions and providers
-│   ├── theme-provider.tsx       # Theme provider setup
-│   └── utils.ts                 # Helper utilities
-├── public/                       # Static assets
-│   └── companies/              # Company logos
-├── package.json                 # Project dependencies
-├── tsconfig.json               # TypeScript configuration
-├── tailwind.config.js          # Tailwind CSS configuration
-├── next.config.ts              # Next.js configuration
-└── eslint.config.mjs           # ESLint configuration
+├── lib/                                   # Utility functions and providers
+│   ├── theme-provider.tsx                # Theme provider setup
+│   └── utils.ts                          # Helper utilities
+├── public/                                # Static assets
+│   └── companies/                        # Company logos
+├── package.json                           # Project dependencies
+├── tsconfig.json                          # TypeScript configuration
+├── tailwind.config.js                     # Tailwind CSS configuration
+├── next.config.ts                         # Next.js configuration
+└── eslint.config.mjs                      # ESLint configuration
 ```
 
 ## 🚀 Getting Started
@@ -135,6 +150,23 @@ This project uses Kinde for authentication. The header component automatically h
 - User session management
 - Logout functionality
 - Responsive mobile navigation
+
+## 🏢 Workspace Management
+
+The dashboard includes a comprehensive workspace management system:
+- **Create Workspaces** - Set up new workspaces with validated names (2-50 characters)
+- **Workspace Layout** - Dedicated dashboard layout for workspace organization
+- **Schema Validation** - Zod-based validation for workspace data ensuring data integrity
+- **Team Collaboration** - Organized workspace structure for team interactions
+
+### Workspace Schema
+
+Workspace names are validated using Zod schema:
+```typescript
+workspaceSchema = z.object({
+  name: z.string().min(2).max(50),
+})
+```
 
 ## 📱 Responsive Design
 
