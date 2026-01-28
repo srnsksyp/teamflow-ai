@@ -64,7 +64,7 @@ export function UserNav() {
           <div className="grid flex-1 text-left text-sm leading-tight">
             <p className="truncate font-medium">{user.given_name}</p>
             <p className="text-muted-foreground truncate text-xs">
-              saransh0511@gmail.com
+              {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
