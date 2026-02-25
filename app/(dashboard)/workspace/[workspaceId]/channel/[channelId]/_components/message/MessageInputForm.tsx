@@ -17,6 +17,8 @@ import { MessageComposer } from "./MessageComposer";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { orpc } from "@/lib/orpc";
 import { toast } from "sonner";
+import { useState } from "react";
+import { useAttachmentUpload } from "@/hooks/use-attachment-upload";
 
 interface iAppProps {
   channelId: string;
@@ -24,6 +26,8 @@ interface iAppProps {
 
 export function MessageInputForm({ channelId }: iAppProps) {
   const queryClient = useQueryClient();
+  const [editorkey, setEditorkey] = useState(0);
+  const upload = useAttachmentUpload();
 
   const form = useForm({
     resolver: zodResolver(createMessageSchema),
@@ -37,18 +41,26 @@ export function MessageInputForm({ channelId }: iAppProps) {
     orpc.message.create.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: orpc.message.list.key()
-        })
+          queryKey: orpc.message.list.key(),
+        });
+
+        form.reset({ channelId, content: "" });
+        upload.clear();
+        setEditorkey((k) => k + 1);
+
         return toast.success("Message created successfully!");
       },
       onError: () => {
-        return toast.error("something went wrong while creating the message.");
+        return toast.error("Something went wrong while creating the message.");
       },
     }),
   );
 
   function onSubmit(data: createMessageSchemaType) {
-    createMessageMutation.mutate(data);
+    createMessageMutation.mutate({
+      ...data,
+      imageUrl: upload.stagedUrl ?? undefined,
+    });
   }
 
   return (
@@ -61,10 +73,12 @@ export function MessageInputForm({ channelId }: iAppProps) {
             <FormItem>
               <FormControl>
                 <MessageComposer
+                  key={editorkey}
                   value={field.value}
                   onChange={field.onChange}
                   onSubmit={() => onSubmit(form.getValues())}
                   isSubmitting={createMessageMutation.isPending}
+                  upload={upload}
                 />
               </FormControl>
               <FormMessage />
