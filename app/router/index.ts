@@ -2,7 +2,7 @@ import { create } from "domain";
 import { createWorkspace, listWorkspaces } from "./workspace";
 import { createChannel, getChannel, listChannels } from "./channel";
 import { createMessage, listMessages } from "./message";
-import { inviteMember, listMembers } from "./member";
+import { inviteMember, listMembers, updateMessage } from "./member";
 
 export const router = {
   workspace: {
@@ -23,5 +23,6 @@ export const router = {
   message: {
     create: createMessage,
     list: listMessages,
+    update: updateMessage,
   },
 };

@@ -5,9 +5,18 @@ import { requiredAuthMiddleware } from "../middlewares/auth";
 import { base } from "../middlewares/base";
 import { requiredWorkspaceMiddleware } from "../middlewares/workspace";
 import { inviteMemberSchema } from "../schemas/member";
-import { init, organization_user, Organizations, Users } from "@kinde/management-api-js";
+import {
+  init,
+  organization_user,
+  Organizations,
+  Users,
+} from "@kinde/management-api-js";
 import { getAvatar } from "@/lib/get-avatar";
 import { readSecurityMiddleware } from "../middlewares/arcjet/read";
+import { writeSecurityMiddleware } from "../middlewares/arcjet/write";
+import { updateMessageSchema } from "../schemas/message";
+import prisma from "@/lib/prisma";
+import { Message } from "@/lib/generated/prisma/client";
 
 export const inviteMember = base
   .use(requiredAuthMiddleware)
@@ -75,4 +84,52 @@ export const listMembers = base
     } catch {
       throw errors.INTERNAL_SERVER_ERROR();
     }
+  });
+
+export const updateMessage = base
+  .use(requiredAuthMiddleware)
+  .use(requiredWorkspaceMiddleware)
+  .use(standardSecurityMiddleware)
+  .use(writeSecurityMiddleware)
+  .route({
+    method: "PUT",
+    path: "/messages/:messageId",
+    summary: "Update a message",
+    tags: ["Messages"],
+  })
+  .input(updateMessageSchema)
+  .output(
+    z.object({
+      message: z.custom<Message>(),
+      canEdit: z.boolean(),
+    }),
+  )
+  .handler(async ({ input, context, errors }) => {
+    const message = await prisma.message.findFirst({
+      where: {
+        id: input.messageId,
+        Channel: {
+          workspaceId: context.workspace.orgCode,
+        },
+      },
+      select: {
+        id: true,
+        authorId: true,
+      },
+    });
+
+    if (!message) throw errors.NOT_FOUND();
+
+    if (message.authorId !== context.user.id) throw errors.FORBIDDEN();
+
+    const updated = await prisma.message.update({
+      where: {
+        id: input.messageId,
+      },
+      data: {
+        content: input.content,
+      },
+    });
+
+    return { message: updated, canEdit: updated.authorId === context.user.id };
   });
